@@ -1,4 +1,5 @@
 import Material           from './material.js';
+import Vec3               from './vec3.js';             // classe vecteur 3d
 import Ray                from './ray.js';
 import { reflect, refract, schlick, randomDouble } from './utils.js';
 

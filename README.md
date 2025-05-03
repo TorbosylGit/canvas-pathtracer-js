@@ -176,6 +176,18 @@ Moteur de path-tracing minimal en JavaScript (sans WebGL), rendu via `<canvas>`.
    - sphère verre creuse (rayons ±)  
    - deux Sphere avec Dielectric(1.5)
 
+## Étape 10 : caméra positionnable
+
+* **Camera** (`src/camera.js`)  
+  - paramètres : lookfrom, lookat, vup  
+  - champ de vision `vfov` en degrés  
+  - aspect ratio `nx/ny`  
+  - calcul base u,v,w et coin inférieur gauche
+
+* **main.js**  
+  - instancier `new Camera(...)`  
+  - utilisez `cam.getRay(s,t)` comme avant
+
 
 
 

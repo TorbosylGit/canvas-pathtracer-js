@@ -37,8 +37,16 @@ const world = new HittableList([
              new Lambertian(new Vec3(0.8, 0.8, 0.0)))
 ]);
 
-// instancier caméra
-const cam = new Camera();
+// caméra
+const aspect = nx / ny;
+// positionner caméra :) !
+const cam = new Camera(
+  new Vec3(2, 3, 3),  // lookfrom
+  new Vec3( 0, 0, -1), // lookat
+  new Vec3( 0, 1,  0), // vup
+  15,                  // vfov en degrés
+  aspect               // ratio largeur/hauteur
+);
 
 // calculer couleur avec matériaux
 function color(ray, world, depth) {
