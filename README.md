@@ -43,6 +43,26 @@ Moteur de path-tracing minimal en JavaScript (sans WebGL), rendu via `<canvas>`.
   * Fichiers séparés : HTML, CSS, JS, classe Vec3
   * Chargement par modules pour clarté
 
+## Étape 3 : Rayons, caméra et arrière-plan
+
+* **Classe `Ray` (`src/ray.js`)**  
+  - Propriétés : `A` origine, `B` direction  
+  - Méthode `pointAtParameter(t)` pour p(t)=A+tB  
+* **Fonction `color(r)`**  
+  1. Normalisation de la direction  
+  2. t = 0.5 * (y+1) pour gradient vertical  
+  3. lerp entre blanc et bleu clair  
+* **Caméra simple**  
+  - `origin` = (0,0,0)  
+  - `lowerLeftCorner` = (−2,−1,−1)  
+  - `horizontal` = (4,0,0), `vertical` = (0,2,0)  
+* **Boucle de rendu**  
+  1. u = i/nx, v = j/ny  
+  2. rayon r = Ray(origin, lowerLeft + u·horizontal + v·vertical)  
+  3. couleur = color(r)  
+  4. conversion en RGBA et stockage  
+  5. affichage via putImageData  
+
 
 
 
