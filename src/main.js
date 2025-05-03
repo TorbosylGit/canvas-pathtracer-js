@@ -5,6 +5,7 @@ import HittableList  from './hittableList.js';
 import Camera        from './camera.js';
 import Lambertian    from './lambertian.js';
 import Metal         from './metal.js';
+import Dielectric   from './dielectric.js';
 import { randomDouble } from './utils.js';
 
 // récupérer canvas html
@@ -15,35 +16,25 @@ const ctx    = canvas.getContext('2d');
 // dimensions image
 const nx = 200, ny = 100;
 // échantillons par pixel
-const ns = 100;
+const ns = 100; //100
 // max rebonds récursifs
-const maxDepth = 50;
+const maxDepth = 50; //50
 // préparer imageData brut
 const imageData = ctx.createImageData(nx, ny);
 const data      = imageData.data;
 
 // construire monde matériaux variés
 const world = new HittableList([
-  new Sphere(
-    new Vec3( 0,    0,  -1),
-    0.5,
-    new Lambertian(new Vec3(0.8, 0.3, 0.3))
-  ),
-  new Sphere(
-    new Vec3( 1,    0,  -1),
-    0.5,
-    new Metal(new Vec3(0.8, 0.6, 0.2), 0.0)
-  ),
-  new Sphere(
-    new Vec3(-1,    0,  -1),
-    0.5,
-    new Metal(new Vec3(0.8, 0.8, 0.8), 0.3)
-  ),
-  new Sphere(
-    new Vec3( 0, -100.5, -1),
-    100,
-    new Lambertian(new Vec3(0.8, 0.8, 0.0))
-  )
+  new Sphere(new Vec3( 0, 0, -1), 0.5,
+             new Lambertian(new Vec3(0.8, 0.3, 0.3))),
+  new Sphere(new Vec3( 1,    0,  -1),  0.5,
+             new Metal(new Vec3(0.8, 0.6, 0.2), 0.0)),
+  new Sphere(new Vec3(-1,    0,  -1),  0.5,
+             new Dielectric(1.5)),                   // paroi extérieure
+  new Sphere(new Vec3(-1,    0,  -1), -0.45,
+             new Dielectric(1.5)),                   // intérieur creux
+  new Sphere(new Vec3( 0, -100.5, -1),100,
+             new Lambertian(new Vec3(0.8, 0.8, 0.0)))
 ]);
 
 // instancier caméra

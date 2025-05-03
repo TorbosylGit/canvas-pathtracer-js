@@ -163,6 +163,20 @@ Moteur de path-tracing minimal en JavaScript (sans WebGL), rendu via `<canvas>`.
 * **Monde**  
    - sphères lambertian et metal variés
 
+## Étape 9 : Diélectriques
+
+* **utils**  
+   - `refract()`, `schlick()`  
+
+* **Dielectric** (`src/dielectric.js`)  
+   - scatter réfraction ou réflexion  
+   - aléa via `schlick()`  
+
+* **monde**  
+   - sphère verre creuse (rayons ±)  
+   - deux Sphere avec Dielectric(1.5)
+
+
 
 
 
