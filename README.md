@@ -65,19 +65,41 @@ Moteur de path-tracing minimal en JavaScript (sans WebGL), rendu via `<canvas>`.
 
 ## Étape 4 : Ajout d’une sphère
 
-1. **Intersection sphère**  
+* **Intersection sphère**  
    - fonction `hitSphere(center, radius, ray)`  
    - résout a·t² + b·t + c = 0  
    - discriminant > 0 → intersection  
 
-2. **Mise à jour de `color(r)`**  
+* **Mise à jour de `color(r)`**  
    - si `hitSphere(...)`, renvoyer rouge  
    - sinon gradient blanc→bleu (même code)  
 
-3. **Rendu final**  
+* **Rendu final**  
    - boucle rayons par pixel  
    - test sphère avant gradient  
    - affichage via `putImageData`
+
+## Étape 5 : Normales et plusieurs sphères
+
+1. **Hittable** (`src/hittable.js`)  
+   - interface `hit(ray,tMin,tMax,rec)`
+
+2. **Sphere** (`src/sphere.js`)  
+   - calcul racines quadratique  
+   - remplir `rec.p`, `rec.normal`, `rec.t`
+
+3. **HittableList** (`src/hittableList.js`)  
+   - tester tous objets  
+   - garder intersection la plus proche
+
+4. **Color(r)** (`src/main.js`)  
+   - si hit → ombrer par normale  
+   - sinon → même dégradé de fond
+
+5. **Monde**  
+   - sphère flottante (0,0,−1) rayon 0.5  
+   - sol plan sphérique (0,−100.5,−1) rayon 100
+
 
 
 
