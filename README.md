@@ -63,6 +63,21 @@ Moteur de path-tracing minimal en JavaScript (sans WebGL), rendu via `<canvas>`.
   4. conversion en RGBA et stockage  
   5. affichage via putImageData  
 
+## Étape 4 : Ajout d’une sphère
+
+1. **Intersection sphère**  
+   - fonction `hitSphere(center, radius, ray)`  
+   - résout a·t² + b·t + c = 0  
+   - discriminant > 0 → intersection  
+
+2. **Mise à jour de `color(r)`**  
+   - si `hitSphere(...)`, renvoyer rouge  
+   - sinon gradient blanc→bleu (même code)  
+
+3. **Rendu final**  
+   - boucle rayons par pixel  
+   - test sphère avant gradient  
+   - affichage via `putImageData`
 
 
 
