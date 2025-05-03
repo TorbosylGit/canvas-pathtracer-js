@@ -188,6 +188,26 @@ Moteur de path-tracing minimal en JavaScript (sans WebGL), rendu via `<canvas>`.
   - instancier `new Camera(...)`  
   - utilisez `cam.getRay(s,t)` comme avant
 
+## Étape 11 : profondeur de champ (DOF)
+
+* **randomInUnitDisk()** (`src/utils.js`)  
+   - échantillon sur disque z=0
+
+* **Camera** (`src/camera.js`)  
+   - paramètres supplémentaires :  
+     - `aperture` (ouverture)  
+     - `focusDist` (plan net)  
+   - origine des rayons décalée via disque
+
+* **main.js**  
+   - calculer `focusDist = |lookfrom - lookat|`
+   - définir `aperture` (ex : 2.0)  
+   - instancier caméra avec DOF  
+   - utiliser `cam.getRay()` normalement
+
+* **Résultat**  
+   - objets hors du plan net floutés  
+   - intensité du flou contrôlée par `aperture`
 
 
 
