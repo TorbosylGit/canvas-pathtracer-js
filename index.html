@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Étape 1 : Gradient PPM → Canvas</title>
+</head>
+<body>
+  <!-- canvas de rendu image -->
+  <canvas id="canvas" width="200" height="100"></canvas>
+  <script>
+    const nx = 200;
+    const ny = 100;
+
+    // récupérer élément canvas html
+    // obtenir contexte canvas 2d
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    // préparer tampon données pixels
+    const imageData = ctx.createImageData(nx, ny);
+    const data = imageData.data;
+
+    // boucle sur chaque ligne
+    for (let j = 0; j < ny; j++) {
+      // boucle sur chaque colonne
+      for (let i = 0; i < nx; i++) {
+        // calcul composantes couleur rgb
+        const r = i / nx;
+        const g = (ny - 1 - j) / ny;
+        const b = 0.2;
+
+        // conversion vers entier 0-255
+        const ir = Math.floor(255.99 * r);
+        const ig = Math.floor(255.99 * g);
+        const ib = Math.floor(255.99 * b);
+
+        // calcul index pixel de base
+        const index = 4 * (j * nx + i);
+        // stocker composante rouge
+        data[index + 0] = ir;
+        // stocker composante vert
+        data[index + 1] = ig;
+        // stocker composante bleu
+        data[index + 2] = ib;
+        // stocker composante alpha
+        data[index + 3] = 255;
+      }
+    }
+
+    // afficher imageData sur canvas
+    ctx.putImageData(imageData, 0, 0);
+  </script>
+</body>
+</html>
