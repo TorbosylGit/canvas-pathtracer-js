@@ -119,6 +119,25 @@ Moteur de path-tracing minimal en JavaScript (sans WebGL), rendu via `<canvas>`.
    - contours lissés  
    - moins d’aliasing
 
+## Étape 7 : Matériaux diffus
+
+* **randomInUnitSphere()**  
+   - rejet dans sphère unité
+
+* **color(r,world,depth)**  
+   - rebond diffus récursif  
+   - 50% d’énergie chaque rebond  
+   - stop si `depth>=maxDepth`
+
+* **gamma correction**  
+   - appliquer `sqrt()` sur col
+
+* **shadow acne fix**  
+   - début tests `tMin = 0.001`
+
+* **monde**  
+   - sphère flottante et sol
+
 
 
 
