@@ -138,6 +138,31 @@ Moteur de path-tracing minimal en JavaScript (sans WebGL), rendu via `<canvas>`.
 * **monde**  
    - sphère flottante et sol
 
+## Étape 8 : Matériaux métalliques
+
+* **Material** (`src/material.js`)  
+   - interface `scatter(rayIn, rec)`
+
+* **Lambertian** (`src/lambertian.js`)  
+   - diffus lambertien via randomInUnitSphere  
+   - attenuation = couleur intrinsèque
+
+* **Metal** (`src/metal.js`)  
+   - réflexion miroir (reflect)  
+   - fuzzy metal via fuzz*sphère unité  
+   - rejet rayons sous surface
+
+* **Sphere** (`src/sphere.js`)  
+   - stocke `material`  
+   - rempli `rec.material`
+
+* **Color** (`src/main.js`)  
+   - appeler `material.scatter()`  
+   - multiplier attenuation*coul récursive
+
+* **Monde**  
+   - sphères lambertian et metal variés
+
 
 
 
