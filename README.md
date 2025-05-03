@@ -81,25 +81,43 @@ Moteur de path-tracing minimal en JavaScript (sans WebGL), rendu via `<canvas>`.
 
 ## Étape 5 : Normales et plusieurs sphères
 
-1. **Hittable** (`src/hittable.js`)  
+* **Hittable** (`src/hittable.js`)  
    - interface `hit(ray,tMin,tMax,rec)`
 
-2. **Sphere** (`src/sphere.js`)  
+* **Sphere** (`src/sphere.js`)  
    - calcul racines quadratique  
    - remplir `rec.p`, `rec.normal`, `rec.t`
 
-3. **HittableList** (`src/hittableList.js`)  
+* **HittableList** (`src/hittableList.js`)  
    - tester tous objets  
    - garder intersection la plus proche
 
-4. **Color(r)** (`src/main.js`)  
+* **Color(r)** (`src/main.js`)  
    - si hit → ombrer par normale  
    - sinon → même dégradé de fond
 
-5. **Monde**  
+* **Monde**  
    - sphère flottante (0,0,−1) rayon 0.5  
    - sol plan sphérique (0,−100.5,−1) rayon 100
 
+## Étape 6 : Anticrénelage
+
+* **randomDouble()**  
+   - fonction → `Math.random()`
+
+* **Camera** (`src/camera.js`)  
+   - encapsule origine et axes  
+   - `getRay(u,v)` renvoie `Ray`
+
+* **Supersampling**  
+   - `const ns = 100`  
+   - lancer `ns` rayons par pixel  
+   - `u=(i+rand)/nx`, `v=(j+rand)/ny`  
+   - sommer `color(r)`, diviser par `ns`
+
+* **Résultat**  
+   - contours lissés  
+   - moins d’aliasing
 
 
 
