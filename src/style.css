@@ -1,9 +1,17 @@
-/* centrer canvas verticalement et horizontalement */
-html, body {
-height: 100%;
-margin: 0;
-display: flex;
-justify-content: center;
-align-items: center;
-background-color: #2d2d2d;
-}
+/* centrer le canevas */
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #2d2d2d;
+  }
+  
+  /* taille css 1200x800 */
+  #canvas {
+    display: block;
+    width: 960px; /* 4:3 */
+    height: 540px;
+  }
+  

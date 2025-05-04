@@ -226,6 +226,13 @@ Moteur de path-tracing minimal en JavaScript (sans WebGL), rendu via `<canvas>`.
    - variations de couleurs  
    - mélange diffuse / métal / verre
 
+## Upscaling (mise à l’échelle)
+
+   - Pour accélérer le rendu tout en gardant un grand affichage, on travaille en basse résolution interne puis on étire le `canvas`.
+
+* **Upscaling** via CSS dans `src/style.css`
+
+
 
 
 ## Installation

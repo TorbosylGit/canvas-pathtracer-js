@@ -14,9 +14,9 @@ const canvas = document.getElementById('canvas');
 const ctx    = canvas.getContext('2d');
 
 // dimensions image nx, ny
-const nx = 200, ny = 100;
+const nx = 480, ny = 270;
 // nb échantillons par pixel
-const ns = 10; // 100
+const ns = 100; // 100
 // profondeur max récursion utilisée
 const maxDepth = 20; // 50
 
@@ -27,43 +27,17 @@ const data      = imageData.data;
 // construire scène aléatoire
 const world = randomScene();
 
-/*/ construire monde objets
-const world = new HittableList([
-  new Sphere(
-    new Vec3( 0,  0, -1), 0.5,
-    new Lambertian(new Vec3(0.8, 0.3, 0.3))   // sphère diffuse rouge
-  ),
-  new Sphere(
-    new Vec3( 1,  0, -1), 0.5,
-    new Metal(new Vec3(0.8, 0.6, 0.2), 0.0)    // sphère métal parfait
-  ),
-  new Sphere(
-    new Vec3(-1,  0, -1), 0.5,
-    new Dielectric(1.5)                       // bulle verre extérieure
-  ),
-  new Sphere(
-    new Vec3(-1,  0, -1), -0.45,
-    new Dielectric(1.5)                       // bulle verre intérieure
-  ),
-  new Sphere(
-    new Vec3( 0,-100.5,-1),100,
-    new Lambertian(new Vec3(0.8, 0.8, 0.0))   // sol jaune vaste
-  )
-]);
-*/
-
-
 // config caméra dof scène
 const lookfrom  = new Vec3(13, 2, 3); // (-3,0,2)
 const lookat    = new Vec3(0, 0, -1); // (0, 0, -1)
 const vup       = new Vec3(0, 1, 0); // (0, 1, 0)
-const focusDist = 10.0, //lookfrom.subtract(lookat).length();
+const focusDist = 10.0; //lookfrom.subtract(lookat).length();
 const aperture  = 0.0; // 2.0
 const aspect    = nx / ny;
 const cam       = new Camera(
-  lookfrom,  //
-  lookat,    //
-  vup,       //
+  lookfrom,
+  lookat,
+  vup,
   20,        // vfov degrés
   aspect,    // ratio largeur/hauteur
   aperture,  // ouverture (aperture=0)
