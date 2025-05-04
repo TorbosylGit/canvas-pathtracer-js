@@ -209,6 +209,22 @@ Moteur de path-tracing minimal en JavaScript (sans WebGL), rendu via `<canvas>`.
    - objets hors du plan net floutés  
    - intensité du flou contrôlée par `aperture`
 
+## Étape 12 : scène aléatoire
+
+* **randomScene()** (`src/randomScene.js`)  
+   - sol diffus large  
+   - grille de petites sphères  
+   - choix aléatoire de matériau  
+   - évite zone trois sphères  
+
+* **main.js**  
+   - `import { randomScene }`  
+   - `const world = randomScene()`
+
+* **Résultat**  
+   - des centaines d’objets  
+   - variations de couleurs  
+   - mélange diffuse / métal / verre
 
 
 
