@@ -302,6 +302,27 @@ Moteur de path-tracing minimal en JavaScript (sans WebGL), rendu via `<canvas>`.
    - remplacer `randomScene()` par `twoSpheres()`
    - extraire `sceneList.objects` avant BVH
 
+## Étape 16 : bruit de Perlin
+
+* **Perlin** (`src/perlin.js`)  
+   - gradients unitaires pseudo-aléatoires  
+   - tables de permutation hashing  
+   - fonctions `fade()`, `lerp()`, interpolation  
+   - turbulence (sommation multi-fréquence)
+
+* **NoiseTexture** (`src/noiseTexture.js`)  
+   - nuances de gris via `noise(p)`
+
+* **MarbleTexture** (`src/marbleTexture.js`)  
+   - sinus + turbulence pour marbre
+
+* **scenes** (`src/scenes/perlinSpheres.js`, `src/scenes/marbleSphere.js`)  
+   - `perlinSpheres()` : sphères bruit Perlin  
+   - `marbleSphere()`  : sphères effet marbre
+
+* **main.js**  
+   - importer `perlinSpheres` ou `marbleSphere`  
+   - extraire `sceneList.objects` pour BVH
 
 
 

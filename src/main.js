@@ -3,7 +3,10 @@ import Ray             from './ray.js';
 import Camera          from './camera.js';
 import BVHNode         from './bvhNode.js';
 import { randomDouble } from './utils.js';
-import { twoSpheres }   from './scenes.js';
+import randomScene    from './scenes/randomScene.js';
+import twoSpheres     from './scenes/twoSpheres.js';
+import perlinSpheres  from './scenes/perlinSpheres.js';
+import marbleSphere   from './scenes/marbleSphere.js';
 
 // résolution interne du rendu
 // nx colonnes, ny lignes
@@ -24,7 +27,7 @@ const data      = imageData.data;
 
 // construire scène texturée
 // deux spheres damier
-const sceneList = twoSpheres();
+const sceneList = marbleSphere();
 // extraire tableau natif
 const objects   = sceneList.objects;
 // construire BVH pour accélérer
