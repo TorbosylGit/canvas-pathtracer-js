@@ -324,7 +324,31 @@ Moteur de path-tracing minimal en JavaScript (sans WebGL), rendu via `<canvas>`.
    - importer `perlinSpheres` ou `marbleSphere`  
    - extraire `sceneList.objects` pour BVH
 
+## Étape 17 : rectangles & sources lumineuses
 
+* **Material** (`src/material.js`)  
+   - ajout de la méthode `emitted(u,v,p)` par défaut → noir  
+
+* **DiffuseLight** (`src/diffuseLight.js`)  
+   - `scatter()` retourne `false`  
+   - `emitted()` renvoie la texture d’émission  
+
+* **Rectangles axis-aligned**  
+   - **XYRect** (`src/xyRect.js`) : plan Z=k, bornes X/Y, `hit()` + `boundingBox()`  
+   - **XZRect** (`src/xzRect.js`) : plan Y=k, bornes X/Z, `hit()` + `boundingBox()`  
+   - **YZRect** (`src/yzRect.js`) : plan X=k, bornes Y/Z, `hit()` + `boundingBox()`  
+
+* **FlipNormals** (`src/flipNormals.js`)  
+   - wrapper pour inverser la normale des hitables  
+
+* **Scenes lumineuses** (`src/scenes/`)  
+   - **simpleLight.js** : sphères + rectangle émetteur dans le plan XY  
+   - **cornellBox.js**  : 5 parois colorées + source lumineuse plafond  
+
+* **main.js**  
+   - importer la scène désirée (`simpleLight` ou `cornellBox`)  
+   - extraire `sceneList.objects` pour construire le BVH  
+   - utiliser `backgroundColor(ray)` selon `useSkyBackground`
 
 
 
