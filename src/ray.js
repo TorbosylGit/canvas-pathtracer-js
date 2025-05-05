@@ -1,25 +1,18 @@
-// classe rayon 3D
 import Vec3 from './vec3.js';
 
-// rayon p(t) = A + t*B
+// classe ray 3d avec temps
 export default class Ray {
-  constructor(A = new Vec3(), B = new Vec3()) {
-    this.A = A;       // origine du rayon
-    this.B = B;       // direction du rayon
+  constructor(A = new Vec3(), B = new Vec3(), t = 0.0) {
+    // initialise origine direction et temps
+    this.A     = A;      // origine du rayon 3d
+    this.B     = B;      // direction du rayon 3d
+    this._time = t;      // instant du rayon courant
   }
 
-  // origine du rayon
-  origin() {
-    return this.A;
-  }
-
-  // direction du rayon
-  direction() {
-    return this.B;
-  }
-
-  // point sur le rayon en t
-  pointAtParameter(t) {
+  origin()    { return this.A; }            // récupérer origine du rayon
+  direction() { return this.B; }            // récupérer direction du rayon
+  time()      { return this._time; }        // récupérer instant du rayon
+  pointAt(t)  {                             // point p = A + tB
     return this.A.add(this.B.multiplyScalar(t));
   }
 }

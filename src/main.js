@@ -1,248 +1,112 @@
-import Vec3           from './vec3.js';
-import Ray            from './ray.js';
-import Sphere         from './sphere.js';
-import HittableList   from './hittableList.js';
-import Camera         from './camera.js';
-import Lambertian     from './lambertian.js';
-import Metal          from './metal.js';
-import Dielectric     from './dielectric.js';
+import Vec3          from './vec3.js';
+import Ray           from './ray.js';
+import Sphere        from './sphere.js';
+import HittableList  from './hittableList.js';
+import Camera        from './camera.js';
+import Lambertian    from './lambertian.js';
+import Metal         from './metal.js';
+import Dielectric    from './dielectric.js';
+import MovingSphere  from './movingSphere.js';
 import { randomDouble } from './utils.js';
 import { randomScene }  from './randomScene.js';
 
-// récupérer canvas et contexte
+// paramètres résolution et échantillonnage
+const nx       = 240; // nombre colonnes internes axe x
+const ny       = 135; // nombre lignes internes axe y
+const ns       = 10; // échantillons par pixel total (100)
+const maxDepth = 20;  // profondeur récursion max rayons (50)
+
+// créer scène (fixe et mouvante)
+const world = randomScene(); // scène aléatoire variée
+
+// config caméra DOF + flou mouv
+const lookfrom   = new Vec3(13, 2, 3);                // position initiale cam
+const lookat     = new Vec3(0,  0, 0);                // point visé scène
+const vup        = new Vec3(0,  1, 0);                // vecteur « up » monde
+const focusDist  = lookfrom.subtract(lookat).length(); // distance plan net
+const aperture   = 0.1;                              // ouverture diaphragme
+const time0      = 0.0;                              // début obturateur ouvert
+const time1      = 1.0;                              // fin obturateur fermé
+const aspect     = nx / ny;                          // ratio largeur/hauteur
+
+const cam = new Camera(
+  lookfrom, lookat, vup,
+  20, aspect,
+  aperture, focusDist,
+  time0, time1
+); // instancier caméra DOF mouv
+
+// préparer canvas et imageData brut
 const canvas = document.getElementById('canvas');
-const ctx    = canvas.getContext('2d');
-
-// dimensions image nx, ny
-const nx = 480, ny = 270;
-// nb échantillons par pixel
-const ns = 100; // 100
-// profondeur max récursion utilisée
-const maxDepth = 20; // 50
-
-// préparer imageData brut canvas
-const imageData = ctx.createImageData(nx, ny);
+const ctx    = canvas.getContext('2d');               // obtenir contexte 2d
+const imageData = ctx.createImageData(nx, ny);        // allouer tampon image
 const data      = imageData.data;
 
-// construire scène aléatoire
-const world = randomScene();
+// boucle rendu final
+for (let j = 0; j < ny; j++) {                         // boucle lignes image
+  for (let i = 0; i < nx; i++) {                       // boucle colonnes image
+    // initialiser couleur accumulée pixel
+    let col = new Vec3(0, 0, 0);
 
-// config caméra dof scène
-const lookfrom  = new Vec3(13, 2, 3); // (-3,0,2)
-const lookat    = new Vec3(0, 0, -1); // (0, 0, -1)
-const vup       = new Vec3(0, 1, 0); // (0, 1, 0)
-const focusDist = 10.0; //lookfrom.subtract(lookat).length();
-const aperture  = 0.0; // 2.0
-const aspect    = nx / ny;
-const cam       = new Camera(
-  lookfrom,
-  lookat,
-  vup,
-  20,        // vfov degrés
-  aspect,    // ratio largeur/hauteur
-  aperture,  // ouverture (aperture=0)
-  focusDist  // distance mise au point (focusDist=1.0)
-);
-
-// calcul couleur récursif ray
-function color(ray, world, depth) {
-  const rec = {};
-  // intersection la plus proche ?
-  if (world.hit(ray, 0.001, Infinity, rec)) {
-    if (depth >= maxDepth) {
-      return new Vec3(0, 0, 0);             // fin recursions depth max
-    }
-    const scatterRes = rec.material.scatter(ray, rec);
-    if (scatterRes) {
-      const { scattered, attenuation } = scatterRes;
-      return attenuation.multiply(
-        color(scattered, world, depth + 1)
-      );
-    }
-    return new Vec3(0, 0, 0);               // rayon absorbé sans scatter
-  }
-  // arrière-plan gradient couleur ciel
-  const unitDir = ray.direction().normalize();
-  const t       = 0.5 * (unitDir.y() + 1.0);
-  const white   = new Vec3(1.0, 1.0, 1.0);
-  const blue    = new Vec3(0.5, 0.7, 1.0);
-  return white.multiplyScalar(1.0 - t)
-              .add(blue.multiplyScalar(t));
-}
-
-// boucle rendu pixel scène
-for (let j = 0; j < ny; j++) {
-  for (let i = 0; i < nx; i++) {
-    let col = new Vec3(0, 0, 0);            // accum couleur
-    // supersampling ns rayons scène
+    // lancer ns rayons par pixel
     for (let s = 0; s < ns; s++) {
-      const u = (i + randomDouble()) / nx;
-      const v = ((ny - 1 - j) + randomDouble()) / ny;
-      const r = cam.getRay(u, v);
-      col = col.add(color(r, world, 0));
+      const u = (i + randomDouble()) / nx;             // coord u pixel aléa
+      const v = ((ny - 1 - j) + randomDouble()) / ny;  // coord v pixel aléa
+      const r = cam.getRay(u, v);                      // rayon timé + DOF
+      col = col.add(color(r, world, 0));               // accumuler couleur récursive
     }
-    // moyenne des échantillons couleur
+
+    // moyenne couleurs échantillons
     col = col.divideScalar(ns);
-    // gamma correction simple linéaire
+    // appliquer correction gamma sqrt
     col = new Vec3(
       Math.sqrt(col.x()),
       Math.sqrt(col.y()),
       Math.sqrt(col.z())
     );
-    // conversion et écriture RGBA
-    const ir  = Math.floor(255.99 * col.r());
-    const ig  = Math.floor(255.99 * col.g());
-    const ib  = Math.floor(255.99 * col.b());
-    const idx = 4 * (j * nx + i);
-    data[idx + 0] = ir;
-    data[idx + 1] = ig;
-    data[idx + 2] = ib;
-    data[idx + 3] = 255;
+
+    // conversion composantes en 0–255
+    const ir  = Math.floor(255.99 * col.r());         // conversion canal rouge
+    const ig  = Math.floor(255.99 * col.g());         // conversion canal vert
+    const ib  = Math.floor(255.99 * col.b());         // conversion canal bleu
+    const idx = 4 * (j * nx + i);                     // calcul index pixel RGBA
+    data[idx + 0] = ir;                               // écrire composante rouge pixel
+    data[idx + 1] = ig;                               // écrire composante vert pixel
+    data[idx + 2] = ib;                               // écrire composante bleu pixel
+    data[idx + 3] = 255;                              // écrire composante alpha opaque
   }
 }
 
 // dessiner imageData sur canvas
 ctx.putImageData(imageData, 0, 0);
 
-
-
-
-
-
-
-
-
-/*
-import Vec3           from './vec3.js';
-import Ray            from './ray.js';
-import Sphere         from './sphere.js';
-import HittableList   from './hittableList.js';
-import Camera         from './camera.js';
-import Lambertian     from './lambertian.js';
-import Metal          from './metal.js';
-import Dielectric     from './dielectric.js';
-import {
-  randomDouble,
-  randomInUnitSphere,
-  randomInUnitDisk,
-  reflect,
-  refract,
-  schlick
-}                    from './utils.js';
-
-// récupérer canvas html
-const canvas = document.getElementById('canvas');
-// obtenir contexte 2d
-const ctx    = canvas.getContext('2d');
-
-// dimensions image
-const nx = 200, ny = 100;
-// échantillons par pixel
-const ns = 100;
-// profondeur recursion max
-const maxDepth = 50;
-
-// préparer imageData brut
-const imageData = ctx.createImageData(nx, ny);
-const data      = imageData.data;
-
-// construire monde objets
-const world = new HittableList([
-  new Sphere(
-    new Vec3( 0,  0, -1), 0.5,
-    new Lambertian(new Vec3(0.8, 0.3, 0.3))   // sphère diffuse rouge
-  ),
-  new Sphere(
-    new Vec3( 1,  0, -1), 0.5,
-    new Metal(new Vec3(0.8, 0.6, 0.2), 0.0)    // sphère métal parfait
-  ),
-  new Sphere(
-    new Vec3(-1,  0, -1), 0.5,
-    new Dielectric(1.5)                       // bulle verre extérieure
-  ),
-  new Sphere(
-    new Vec3(-1,  0, -1), -0.45,
-    new Dielectric(1.5)                       // bulle verre intérieure
-  ),
-  new Sphere(
-    new Vec3( 0,-100.5,-1),100,
-    new Lambertian(new Vec3(0.8, 0.8, 0.0))   // sol jaune vaste
-  )
-]);
-
-// calculer focus_dist et aperture
-const lookfrom  = new Vec3(3, 3, 2);                     // position cam
-const lookat    = new Vec3(0, 0, -1);                    // point visé
-const focusDist = lookfrom.subtract(lookat).length();    // plan net
-const aperture  = 2.0;                                   // diamètre trou
-
-// instancier caméra DOF
-const aspect = nx / ny;
-const cam    = new Camera(
-  new Vec3(-3,0,2),
-  new Vec3(0,0,-1),
-  new Vec3(0,1,0),
-  15,     // vfov°
-  aspect, // ratio
-  0,      // aperture (ouverture diaphragme)
-  1.0     // focusDist (focus_dist)
-);
-
-// calculer couleur d’un rayon
+// fonction récursive couleur ray
 function color(ray, world, depth) {
+  // init record impact variable
   const rec = {};
-  // intersection la plus proche ?
+  // si intersection trouvée proche
   if (world.hit(ray, 0.001, Infinity, rec)) {
+    // stopper récursion profondeur max
     if (depth >= maxDepth) {
-      return new Vec3(0, 0, 0);       // fin recursion
+      return new Vec3(0, 0, 0);                      // retour noir arrêt récursion
     }
-    // scatter via matériau
+    // scatter via material associé
     const scatterRes = rec.material.scatter(ray, rec);
     if (scatterRes) {
       const { scattered, attenuation } = scatterRes;
-      return attenuation.multiply(
-        color(scattered, world, depth + 1)
-      );
+      // générer rayon scatter et atténuation
+      const colRec = color(scattered, world, depth + 1);
+      // multiplier attenuation et couleur
+      return attenuation.multiply(colRec);
     }
-    return new Vec3(0, 0, 0);         // rayon absorbé
+    return new Vec3(0, 0, 0);                        // rayon absorbé retourne noir
   }
-  // background gradient
-  const unitDir = ray.direction().normalize();
-  const t       = 0.5 * (unitDir.y() + 1.0);
-  const white   = new Vec3(1.0, 1.0, 1.0);
-  const blue    = new Vec3(0.5, 0.7, 1.0);
+  // sinon fond ciel gradient
+  const unitDir = ray.direction().normalize();      // direction unitaire du rayon
+  const t       = 0.5 * (unitDir.y() + 1.0);        // param t pour gradient
+  const white   = new Vec3(1.0, 1.0, 1.0);         // couleur blanc pour fond
+  const blue    = new Vec3(0.5, 0.7, 1.0);         // couleur bleu pour fond
+  // interpolation blanc vers bleu
   return white.multiplyScalar(1.0 - t)
               .add(blue.multiplyScalar(t));
 }
-
-// boucle de rendu pixels
-for (let j = 0; j < ny; j++) {
-  for (let i = 0; i < nx; i++) {
-    let col = new Vec3(0, 0, 0);         // accum couleur
-    for (let s = 0; s < ns; s++) {       // supersampling
-      const u = (i + randomDouble()) / nx;
-      const v = ((ny - 1 - j) + randomDouble()) / ny;
-      const r = cam.getRay(u, v);
-      col = col.add(color(r, world, 0));
-    }
-    col = col.divideScalar(ns);          // moyenne samples
-    col = new Vec3(                       // gamma correction
-      Math.sqrt(col.x()),
-      Math.sqrt(col.y()),
-      Math.sqrt(col.z())
-    );
-    // conversion 0–255 et écriture
-    const ir  = Math.floor(255.99 * col.r());
-    const ig  = Math.floor(255.99 * col.g());
-    const ib  = Math.floor(255.99 * col.b());
-    const idx = 4 * (j * nx + i);
-    data[idx + 0] = ir;
-    data[idx + 1] = ig;
-    data[idx + 2] = ib;
-    data[idx + 3] = 255;
-  }
-}
-
-// dessiner imageData sur canvas
-ctx.putImageData(imageData, 0, 0);
-*/

@@ -232,6 +232,28 @@ Moteur de path-tracing minimal en JavaScript (sans WebGL), rendu via `<canvas>`.
 
 * **Upscaling** via CSS dans `src/style.css`
 
+## Étape 13 : flou de mouvement
+
+* **Ray** (`src/ray.js`)  
+   - ajouter champ `time`
+
+* **Camera** (`src/camera.js`)  
+   - stocker `time0,time1`  
+   - échantillonner temps aléatoire
+
+* **MovingSphere** (`src/movingSphere.js`)  
+   - centre(t) linéaire entre c0 → c1
+
+* **Lambertian**  
+   - scatter conserve `rayIn.time()`
+
+* **main.js**  
+   - instancier `Camera(..., time0, time1)`  
+   - `cam.getRay()` génère rayons timés
+
+* **Résultat**  
+   - flou réaliste pour objets et cam
+
 
 
 

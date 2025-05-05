@@ -1,45 +1,60 @@
-import Vec3 from './vec3.js';
-import Ray from './ray.js';
-import { randomInUnitDisk } from './utils.js';
+import Vec3               from './vec3.js';
+import Ray                from './ray.js';
+import { randomInUnitDisk,
+         randomDouble }   from './utils.js';
 
-// caméra dof et fov
+// caméra DOF et flou mouvement
 export default class Camera {
-  constructor(lookfrom, lookat, vup, vfov, aspect, aperture, focusDist) {
-    this.lensRadius = aperture / 2;          // rayon diaphragme
+  constructor(lookfrom, lookat, vup,
+              vfov, aspect,
+              aperture, focusDist,
+              time0, time1) {
+    // début ouverture de l’obturateur
+    this.time0      = time0;
+    // fin fermeture de l’obturateur
+    this.time1      = time1;
+    // demi-diamètre diaphragme caméra
+    this.lensRadius = aperture / 2;
 
-    const theta      = vfov * Math.PI / 180; // convertir degrés→rad
-    const halfHeight = Math.tan(theta / 2);  // demi-hauteur plan
-    const halfWidth  = aspect * halfHeight;  // demi-largeur plan
+    // calc champ de vision radian
+    const theta = vfov * Math.PI / 180;
+    // calc demi-hauteur plan image
+    const halfH = Math.tan(theta / 2);
+    // calc demi-largeur plan image
+    const halfW = aspect * halfH;
 
-    this.origin = lookfrom;                  // position caméra
+    this.origin = lookfrom;            // position initiale de caméra
 
-    // calcul base orthonormée
-    this.w = lookfrom
-      .subtract(lookat)
-      .normalize();                          // axe arrière caméra
-    this.u = vup
-      .cross(this.w)
-      .normalize();                          // axe horizontal caméra
-    this.v = this.w
-      .cross(this.u);                        // axe vertical caméra
+    // calcul base orthonormée caméra
+    this.w = lookfrom.subtract(lookat).normalize();
+    this.u = vup.cross(this.w).normalize();
+    this.v = this.w.cross(this.u);
 
-    // coin bas-gauche du plan image
+    // coin bas-gauche plan image
     this.lowerLeft = this.origin
-      .subtract(this.u.multiplyScalar(halfWidth  * focusDist))
-      .subtract(this.v.multiplyScalar(halfHeight * focusDist))
+      .subtract(this.u.multiplyScalar(halfW  * focusDist))
+      .subtract(this.v.multiplyScalar(halfH  * focusDist))
       .subtract(this.w.multiplyScalar(focusDist));
 
-    // vecteurs plan image
-    this.horizontal = this.u.multiplyScalar(2 * halfWidth  * focusDist); // largeur plan
-    this.vertical   = this.v.multiplyScalar(2 * halfHeight * focusDist); // hauteur plan
+    // vecteur largeur plan image
+    this.horizontal = this.u.multiplyScalar(2 * halfW  * focusDist);
+    // vecteur hauteur plan image
+    this.vertical   = this.v.multiplyScalar(2 * halfH  * focusDist);
   }
 
   getRay(s, t) {
-    // échantillon disque diaphragme
+    // échantillon disque unité diaphragme
     const rd     = randomInUnitDisk().multiplyScalar(this.lensRadius);
-    const offset = this.u.multiplyScalar(rd.x()).add(this.v.multiplyScalar(rd.y())); // offset origine
+    // offset origine selon diaphragme
+    const offset = this.u.multiplyScalar(rd.x())
+                     .add(this.v.multiplyScalar(rd.y()));
 
-    // direction vers pixel ajustée
+    // temps aléatoire ouverture obturateur
+    const time = this.time0
+               + randomDouble()
+               * (this.time1 - this.time0);
+
+    // direction vers pixel donné s,t
     const dir = this.lowerLeft
       .add(this.horizontal.multiplyScalar(s))
       .add(this.vertical.multiplyScalar(t))
@@ -47,92 +62,9 @@ export default class Camera {
       .subtract(offset);
 
     return new Ray(
-      this.origin.add(offset), // origine décalée
-      dir                       // direction calculée
+      this.origin.add(offset), // origine ajustée selon offset
+      dir,                     // direction ajustée ray
+      time                     // instant de vie rayon
     );
   }
 }
-
-
-
-
-
-/*
-import Vec3 from './vec3.js';
-import Ray  from './ray.js';
-
-// caméra positionnable avec fov
-export default class Camera {
-  constructor(lookfrom, lookat, vup, vfov, aspect) {
-    // convertir degrés→radians
-    const theta = vfov * Math.PI / 180;
-    // demi-hauteur écran
-    const halfHeight = Math.tan(theta / 2);
-    // demi-largeur écran
-    const halfWidth = aspect * halfHeight;
-
-    this.origin = lookfrom;            // position caméra
-
-    // vecteurs axes caméra
-    const w = lookfrom.subtract(lookat).normalize();          // vers arrière
-    const u = vup.cross(w).normalize();                       // vers droite
-    const v = w.cross(u);                                     // vers haut
-
-    // coin bas-gauche écran
-    this.lowerLeft = this.origin
-      .subtract(u.multiplyScalar(halfWidth))
-      .subtract(v.multiplyScalar(halfHeight))
-      .subtract(w);
-
-    this.horizontal = u.multiplyScalar(2 * halfWidth);       // largeur écran
-    this.vertical   = v.multiplyScalar(2 * halfHeight);      // hauteur écran
-  }
-
-  // renvoyer rayon pour s,t
-  getRay(s, t) {
-    // point sur plan image
-    const dir = this.lowerLeft
-      .add(this.horizontal.multiplyScalar(s))
-      .add(this.vertical.multiplyScalar(t))
-      .subtract(this.origin);
-    return new Ray(this.origin, dir);
-  }
-}
-*/
-
-
-
-
-
-
-
-
-
-/*
-import Vec3 from './vec3.js';
-import Ray  from './ray.js';
-
-// caméra simple pour tracer
-export default class Camera {
-  constructor() {
-    // origine caméra
-    this.origin = new Vec3(0, 0, 0);
-    // coin inférieur gauche
-    this.lowerLeft = new Vec3(-2.0, -1.0, -1.0);
-    // largeur écran
-    this.horizontal = new Vec3(4.0, 0.0, 0.0);
-    // hauteur écran
-    this.vertical = new Vec3(0.0, 2.0, 0.0);
-  }
-
-  // renvoyer rayon pour u,v
-  getRay(u, v) {
-    // direction pixel
-    const dir = this.lowerLeft
-      .add(this.horizontal.multiplyScalar(u))
-      .add(this.vertical.multiplyScalar(v))
-      .subtract(this.origin);
-    return new Ray(this.origin, dir);
-  }
-}
-*/
