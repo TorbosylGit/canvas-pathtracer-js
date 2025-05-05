@@ -279,7 +279,28 @@ Moteur de path-tracing minimal en JavaScript (sans WebGL), rendu via `<canvas>`.
      `new BVHNode(objects, time0, time1)`  
    - accélération sous-linéaire des intersections
 
+## Étape 15 : textures procédurales
 
+* **Texture** (`src/texture.js`)  
+   - interface `value(u,v,p)`
+
+* **ConstantTexture** (`src/constantTexture.js`)  
+   - couleur RGB constante
+
+* **CheckerTexture** (`src/checkerTexture.js`)  
+   - damier 3D via sin(x)·sin(y)·sin(z)
+
+* **Lambertian** (`src/lambertian.js`)  
+   - prend un `Texture` en paramètre  
+   - `attenuation = albedo.value(0,0,p)`
+
+* **scenes** (`src/scenes.js`)  
+   - fonction `twoSpheres()`  
+   - applique damier à deux sphères
+
+* **main.js**  
+   - remplacer `randomScene()` par `twoSpheres()`
+   - extraire `sceneList.objects` avant BVH
 
 
 ## Installation

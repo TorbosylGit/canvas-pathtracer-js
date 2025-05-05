@@ -3,26 +3,30 @@ import Vec3                from './vec3.js';
 import Ray                 from './ray.js';
 import { randomInUnitSphere } from './utils.js';
 
-// matériau diffus lambertien modèle
+// matériau lambertien texturé
 export default class Lambertian extends Material {
-  constructor(albedo) {
+  constructor(albedoTex) {
     super();
-    this.albedo = albedo; // albédo couleur matériau diffuse
+    this.albedo = albedoTex;    // texture albédo
   }
 
   scatter(rayIn, rec) {
-    // générer direction aléatoire diffus
+    // point de rebond aléatoire
     const target = rec.p
       .add(rec.normal)
       .add(randomInUnitSphere());
 
-    // rayon scatter conserve temps
+    // créer rayon diffus
     const scattered = new Ray(
-      rec.p,                         // origine point impact
-      target.subtract(rec.p),        // direction vers cible
-      rayIn.time()                   // conserve temps initial
+      rec.p,                        // origine impact
+      target.subtract(rec.p),       // direction rebond
+      rayIn.time()                  // même timestamp
     );
-    const attenuation = this.albedo; // couleur albédo sphère diffuse
+
+    // couleur via texture
+    const attenuation = this.albedo.value(
+      0, 0, rec.p                   // u,v, position p
+    );
     return { scattered, attenuation };
   }
 }
