@@ -254,6 +254,31 @@ Moteur de path-tracing minimal en JavaScript (sans WebGL), rendu via `<canvas>`.
 * **Résultat**  
    - flou réaliste pour objets et cam
 
+## Étape 14 : hiérarchie de volumes englobants (BVH)
+
+* **AABB** (`src/aabb.js`)  
+   - intersection rayon–AABB par méthode des slabs  
+   - `hit(ray,tMin,tMax)` très rapide
+
+* **Hittable** (`src/hittable.js`)  
+   - nouvelle méthode `boundingBox(t0,t1)`
+
+* **Sphere & MovingSphere**  
+   - implémentent `boundingBox()`  
+   - `MovingSphere` encadre positions à t0/t1
+
+* **HittableList** (`src/hittableList.js`)  
+   - combine récursivement toutes les `boundingBox`
+
+* **BVHNode** (`src/bvhNode.js`)  
+   - construction récursive en deux sous-listes  
+   - `hit()` teste d’abord la box, puis enfants
+
+* **main.js**  
+   - remplacer `new HittableList(...)` par  
+     `new BVHNode(objects, time0, time1)`  
+   - accélération sous-linéaire des intersections
+
 
 
 

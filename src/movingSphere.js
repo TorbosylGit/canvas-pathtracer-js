@@ -1,63 +1,79 @@
-import Vec3     from './vec3.js';
 import Hittable from './hittable.js';
+import AABB      from './aabb.js';
+import Vec3      from './vec3.js';
 
-// sphère mouvante t0 vers t1
+// sphère en translation linéaire
 export default class MovingSphere extends Hittable {
-  constructor(c0, c1, t0, t1, r, mat) {
+  constructor(c0, c1, t0, t1, radius, material) {
     super();
-    this.center0  = c0;  // centre à t0
-    this.center1  = c1;  // centre à t1
-    this.time0    = t0;  // start temps mouvement
-    this.time1    = t1;  // end temps mouvement
-    this.radius   = r;   // rayon sphère
-    this.material = mat; // matériau sphère
+    this.center0  = c0;        // centre initial
+    this.center1  = c1;        // centre final
+    this.time0    = t0;        // début intervalle
+    this.time1    = t1;        // fin intervalle
+    this.radius   = radius;    // rayon sphère
+    this.material = material;  // matériau sphère
   }
 
-  // calc centre selon temps
+  // calcul centre selon temps
   center(time) {
     const dt = (time - this.time0) /
                (this.time1 - this.time0);
-    // interpolation linéaire centre
-    return this.center0
-      .add(this.center1
-           .subtract(this.center0)
-           .multiplyScalar(dt));
+    // interpolation linéaire centres
+    return this.center0.add(
+      this.center1.subtract(this.center0)
+                  .multiplyScalar(dt)
+    );
   }
 
+  // intersection rayon–sphère mouvante
   hit(ray, tMin, tMax, rec) {
-    // centre mouvant selon temps rayon
-    const ctr  = this.center(ray.time());
-    // vecteur origine vers centre mouvant
-    const oc   = ray.origin().subtract(ctr);
+    const ctr = this.center(ray.time());    // centre au temps du rayon
+    const oc  = ray.origin().subtract(ctr); // vecteur origine→centre
 
     const a    = ray.direction().dot(ray.direction());
     const b    = oc.dot(ray.direction());
     const c    = oc.dot(oc) - this.radius * this.radius;
-    // calcul du discriminant quadratique
-    const disc = b*b - a*c;
+    const disc = b * b - a * c;             // discriminant
 
     if (disc > 0) {
+      // tester première racine
       let temp = (-b - Math.sqrt(disc)) / a;
       if (temp < tMax && temp > tMin) {
-        rec.t        = temp;                     // stock paramètre t hit
-        rec.p        = ray.pointAt(rec.t);       // point intersection
-        rec.normal   = rec.p
-                         .subtract(ctr)
-                         .divideScalar(this.radius); // normale unité
-        rec.material = this.material;            // attribuer matériau
+        rec.t        = temp;
+        rec.p        = ray.pointAt(temp);
+        rec.normal   = rec.p.subtract(ctr)
+                             .divideScalar(this.radius);
+        rec.material = this.material;
         return true;
       }
+      // tester seconde racine
       temp = (-b + Math.sqrt(disc)) / a;
       if (temp < tMax && temp > tMin) {
-        rec.t        = temp;                     // stock paramètre t hit
-        rec.p        = ray.pointAt(rec.t);       // point intersection
-        rec.normal   = rec.p
-                         .subtract(ctr)
-                         .divideScalar(this.radius); // normale unité
-        rec.material = this.material;            // attribuer matériau
+        rec.t        = temp;
+        rec.p        = ray.pointAt(temp);
+        rec.normal   = rec.p.subtract(ctr)
+                             .divideScalar(this.radius);
+        rec.material = this.material;
         return true;
       }
     }
-    return false; // aucune intersection sphère
+    return false; // pas d’impact
+  }
+
+  // boîte englobante pour intervalle temps
+  boundingBox(t0, t1) {
+    const r = this.radius;
+    // AABB à t0
+    const box0 = new AABB(
+      this.center(t0).subtract(new Vec3(r,r,r)),
+      this.center(t0).add   (new Vec3(r,r,r))
+    );
+    // AABB à t1
+    const box1 = new AABB(
+      this.center(t1).subtract(new Vec3(r,r,r)),
+      this.center(t1).add   (new Vec3(r,r,r))
+    );
+    // envelopper les deux
+    return surroundingBox(box0, box1);
   }
 }
