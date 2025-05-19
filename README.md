@@ -350,7 +350,7 @@ Moteur de path-tracing minimal en JavaScript (sans WebGL), rendu via `<canvas>`.
    - extraire `sceneList.objects` pour construire le BVH  
    - utiliser `backgroundColor(ray)` selon `useSkyBackground`
 
-## Étape 18 : rendu progressif par passes complètes indéfinies
+## Rendu progressif par passes complètes indéfinies
 
 * **Accumulation**  
    - Tableau `accum[nx*ny]` pour stocker la somme des couleurs  
@@ -369,7 +369,7 @@ Moteur de path-tracing minimal en JavaScript (sans WebGL), rendu via `<canvas>`.
    - Appel inconditionnel `requestAnimationFrame(renderPass)`  
    - Arrêt manuel possible (rafraîchir)
 
-## Étape 19 : suspension du rendu sur changement d’onglet
+## Suspension du rendu sur changement d’onglet
 
 * **API Visibility**  
    - écouter `document.visibilitychange`  
@@ -383,13 +383,43 @@ Moteur de path-tracing minimal en JavaScript (sans WebGL), rendu via `<canvas>`.
    - quand l’onglet redevient visible, réappeler `renderPass()`  
    - pas de perte d’état, `sampleCount` et `accum` restent intacts
 
-### Afficher le temps global
+## Afficher le temps global
 
 - définir `const globalStartTime = performance.now()` avant le premier `renderPass()`.  
 - dans `renderPass()`, après `putImageData`, calculer  
   `elapsed = performance.now() - globalStartTime`.  
 - afficher `elapsed` (divisé par 1000 pour les secondes) dans `#calcTime`.  
 - plus de mesures par passe, on a le temps **total**.
+
+## Utiliser les coeurs logiques pour le rendu progressif full-pass
+
+### Mon objectif
+- Obtenir un rendu progressif où **chaque worker calcule un échantillon complet** de tous les pixels, puis on accumule et on réaffiche immédiatement l’image entière.
+- Répartir la charge sur la **moitié des cœurs logiques** du processeur (`floor(hardwareConcurrency/2)`).
+
+### Principales modifications
+* **Pool de Web Workers**  
+   - `numWorkers = max(1, floor(logicalCores/2))`  
+   - Chaque worker calcule la passe complète (1 échantillon/pixel).
+   - Handshake `init` → `ready` avant de lancer la première passe.
+
+* **Rendu progressif full-pass**  
+   - À chaque passe, on envoie un message `renderPass` à chaque worker.  
+   - Les workers renvoient un buffer `Float32Array(nx*ny*3)` contenant leur échantillon.  
+   - Le main thread accumule ces buffers, applique la correction gamma et fait `putImageData` sur **l’intégralité** du canevas.
+
+* **Gestion du chronomètre global**  
+   - Variables `globalStartTime`, `totalPausedTime`, `pauseStartTime`.  
+   - `visibilitychange` : on **gèle** le rendu et le chrono lorsque l’onglet est caché, on **reprend** dès qu’il redevient visible.
+
+* **Avantages**  
+   - Interface toujours réactive : l’image apparaît entièrement dès la première passe, puis se raffine sample après sample.
+
+
+
+
+
+
 
 
 

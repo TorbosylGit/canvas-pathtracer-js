@@ -23,7 +23,7 @@ export default function cornellBox() {
   );
   // lumière plafond
   const light = new DiffuseLight(
-    new ConstantTexture(new Vec3(15, 15, 15))
+    new ConstantTexture(new Vec3(4, 4, 4))
   );
 
   const objects = [];
