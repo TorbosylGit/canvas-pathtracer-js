@@ -383,6 +383,16 @@ Moteur de path-tracing minimal en JavaScript (sans WebGL), rendu via `<canvas>`.
    - quand l’onglet redevient visible, réappeler `renderPass()`  
    - pas de perte d’état, `sampleCount` et `accum` restent intacts
 
+### Afficher le temps global
+
+- définir `const globalStartTime = performance.now()` avant le premier `renderPass()`.  
+- dans `renderPass()`, après `putImageData`, calculer  
+  `elapsed = performance.now() - globalStartTime`.  
+- afficher `elapsed` (divisé par 1000 pour les secondes) dans `#calcTime`.  
+- plus de mesures par passe, on a le temps **total**.
+
+
+
 
 
 

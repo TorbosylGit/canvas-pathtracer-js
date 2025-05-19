@@ -1,17 +1,26 @@
-/* centrer le canevas */
+/* centrer le canevas + timing verticalement */
 body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
-    background-color: #2d2d2d;
-  }
-  
-  /* taille css 16:9 */
-  #canvas {
-    display: block;
-    width: 1024px;
-    height: 576px;
-  }
-  
+  display: flex;
+  flex-direction: column;      /* passer en colonne */
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  background-color: #2d2d2d;
+}
+
+/* taille css 16:9 pour le canvas */
+#canvas {
+  display: block;
+  width: 1024px;
+  height: 576px;
+}
+
+/* style pour le timing sous le canvas */
+#timing {
+  margin-top: 12px;            /* espacement au-dessus */
+  color: #eee;                 /* texte clair */
+  font-family: sans-serif;
+  font-size: 0.9em;
+  text-align: center;
+}
