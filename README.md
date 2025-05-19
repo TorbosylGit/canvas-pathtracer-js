@@ -350,6 +350,24 @@ Moteur de path-tracing minimal en JavaScript (sans WebGL), rendu via `<canvas>`.
    - extraire `sceneList.objects` pour construire le BVH  
    - utiliser `backgroundColor(ray)` selon `useSkyBackground`
 
+## Étape 18 : rendu progressif par passes complètes indéfinies
+
+* **Accumulation**  
+   - Tableau `accum[nx*ny]` pour stocker la somme des couleurs  
+   - Incrémentation `sampleCount++` à chaque passe  
+
+* **Fonction `renderPass()`**  
+   - Pour chaque pixel, lancer un échantillon Monte-Carlo  
+   - Ajouter la couleur renvoyée à `accum[idx]`  
+
+* **Moyenne & affichage**  
+   - Calcul de `col = accum[idx] / sampleCount`  
+   - Correction gamma (`sqrt`) et écriture dans `ImageData`  
+   - `ctx.putImageData(imageData, 0, 0)` pour réafficher  
+
+* **Bouclage continu**  
+   - Appel inconditionnel `requestAnimationFrame(renderPass)`  
+   - Arrêt manuel possible (rafraîchir)
 
 
 ## Installation

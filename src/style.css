@@ -11,7 +11,7 @@ body {
   /* taille css 16:9 */
   #canvas {
     display: block;
-    width: 960px;
-    height: 540px;
+    width: 1024px;
+    height: 576px;
   }
   
