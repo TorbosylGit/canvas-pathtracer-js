@@ -415,6 +415,16 @@ Moteur de path-tracing minimal en JavaScript (sans WebGL), rendu via `<canvas>`.
 * **Avantages**  
    - Interface toujours réactive : l’image apparaît entièrement dès la première passe, puis se raffine sample après sample.
 
+## Tone-mapping (Reinhard)
+
+Après avoir moyenné les échantillons (HDR linéaire), on applique pour chaque composante :
+
+* **L_avg** : couleur linéaire moyennée  
+* **L_tm** : tone-mapping de Reinhard, compresse les hautes lumières sans écrêtage brutal  
+* **sqrt** : correction gamma (γ=2)  
+
+
+
 
 
 
