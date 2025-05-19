@@ -369,6 +369,23 @@ Moteur de path-tracing minimal en JavaScript (sans WebGL), rendu via `<canvas>`.
    - Appel inconditionnel `requestAnimationFrame(renderPass)`  
    - Arrêt manuel possible (rafraîchir)
 
+## Étape 19 : suspension du rendu sur changement d’onglet
+
+* **API Visibility**  
+   - écouter `document.visibilitychange`  
+   - mettre à jour un flag `isRendering`  
+
+* **Contrôle dans `renderPass()`**  
+   - si `!isRendering`, ne rien faire  
+   - sinon, lancer la passe suivante  
+
+* **Reprise automatique**  
+   - quand l’onglet redevient visible, réappeler `renderPass()`  
+   - pas de perte d’état, `sampleCount` et `accum` restent intacts
+
+
+
+
 
 ## Installation
 
